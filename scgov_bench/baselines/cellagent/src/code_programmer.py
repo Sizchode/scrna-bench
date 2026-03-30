@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from pathlib import Path
+
 from langchain_core.prompts import PromptTemplate
 
 
@@ -7,6 +9,7 @@ class CodeProgrammer:
     def __init__(self, llm, data_file_path: str):
         self.llm = llm
         self.data_file_path = data_file_path
+        self.scseq_path = Path(__file__).resolve().parents[2] / "scOmni" / "codes" / "SinglecellSequencing.py"
         self.prompt_template = """You are an expert bioinformatics programmer.
 Write Python code that completes the current task step.
 
@@ -27,6 +30,10 @@ Selected tools and docs:
 
 Requirements:
 - Use the selected tools when appropriate.
+- Prefer the real scOmni toolkit when the selected tools mention scOmni.
+- The scOmni single-cell toolkit lives at: {scseq_path}
+- If you use scOmni, import from that file or from its package location instead of inventing replacement APIs.
+- When batch integration, annotation, or trajectory inference are requested, prefer the corresponding scOmni callables before falling back to generic Scanpy code.
 - Include the necessary imports and data loading.
 - Use this data file path: {data_file_path}
 - Do not add explanations or comments outside the code.
@@ -46,6 +53,7 @@ Requirements:
                 step_description=step_description,
                 tools_docs=tools_docs,
                 data_file_path=self.data_file_path,
+                scseq_path=str(self.scseq_path),
             )
         )
         return self.extract_code(response), self.extract_analysis(response)

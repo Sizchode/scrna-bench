@@ -42,6 +42,14 @@ def read_case(case_file: Path, case_id: str) -> dict[str, Any]:
     raise ValueError(f"Case not found: {case_id}")
 
 
+def extract_safe_case_input(case_record: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "case_id": case_record["case_id"],
+        "instruction": case_record["instruction"],
+        "data_file_path": case_record["snapshot_path"],
+    }
+
+
 def build_trace(
     *,
     case_id: str | None,
@@ -163,7 +171,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--data-file", type=Path, help="Input AnnData file when not using --case-file.")
     parser.add_argument("--output-json", type=Path, help="Optional output path for trace JSON.")
     parser.add_argument("--notebook-path", type=Path, help="Optional notebook output path.")
-    parser.add_argument("--max-attempts", type=int, default=2)
+    parser.add_argument("--max-attempts", type=int, default=3)
     return parser.parse_args()
 
 
@@ -173,10 +181,10 @@ def main() -> None:
     if args.case_file:
         if not args.case_id:
             raise ValueError("--case-id is required when using --case-file.")
-        case = read_case(args.case_file, args.case_id)
-        instruction = case["instruction"]
-        data_file_path = Path(case["snapshot_path"])
-        case_id = case["case_id"]
+        safe_case = extract_safe_case_input(read_case(args.case_file, args.case_id))
+        instruction = safe_case["instruction"]
+        data_file_path = Path(safe_case["data_file_path"])
+        case_id = safe_case["case_id"]
     else:
         if not args.instruction or not args.data_file:
             raise ValueError("Without --case-file you must provide --instruction and --data-file.")

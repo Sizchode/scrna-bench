@@ -6,14 +6,35 @@ from pathlib import Path
 class ToolRegistry:
     def __init__(self):
         sc_omni_root = Path(__file__).resolve().parents[2] / "scOmni" / "codes"
+        scseq_path = sc_omni_root / "SinglecellSequencing.py"
+        marker_db = sc_omni_root / "maker_database"
+        ti_root = sc_omni_root / "TI_R"
         self.tools = {
-            "Scanpy": "An open-source toolkit for analyzing single-cell gene expression data.",
-            "Harmony": "Batch integration available through scOmni SinglecellSequencing.batch_integration(..., method=['harmony']).",
-            "LIGER": "Batch integration available through scOmni SinglecellSequencing.batch_integration(..., method=['liger']).",
-            "scVI": "Batch integration available through scOmni SinglecellSequencing.batch_integration(..., method=['scvi']).",
-            "CellMarker": f"Marker-based annotation backed by {sc_omni_root / 'maker_database' / 'Cell_marker_Seq.xlsx'}.",
-            "ACT": f"Marker-based annotation backed by {sc_omni_root / 'maker_database' / 'ACT.csv'}.",
-            "TrajectoryInference": f"Trajectory inference wrappers backed by {sc_omni_root / 'TI_R'}.",
+            "scOmni.SinglecellSequencing_toolkit": (
+                f"Primary scOmni toolkit defined in {scseq_path}. "
+                "Prefer importing `SinglecellSequencing_toolkit` from this file when you need batch integration, "
+                "cell type annotation, or trajectory inference utilities."
+            ),
+            "scOmni.batch_integration": (
+                "Callable: SinglecellSequencing_toolkit().batch_integration(adata, batch_key, method=[...]). "
+                "Supported methods include 'harmony', 'liger', and 'scvi'."
+            ),
+            "scOmni.celltype_annotation": (
+                "Callable: SinglecellSequencing_toolkit().celltype_annotation("
+                "adata, species=..., tissue_type=..., cancer_type=..., obs_cluster=..., method=[...]). "
+                "Supported methods include 'gpt4', 'cellmarker', and 'act'."
+            ),
+            "scOmni.trajectory_top_k_methods": (
+                f"Callable: SinglecellSequencing_toolkit().trajectory_top_k_methods(...). "
+                f"R helpers are stored under {ti_root}."
+            ),
+            "scOmni.trajectory_inference": (
+                f"Callable: SinglecellSequencing_toolkit().trajectory_inference(...). "
+                f"Backed by the trajectory inference scripts in {ti_root}."
+            ),
+            "scOmni.CellMarkerDB": f"CellMarker annotation database located at {marker_db / 'Cell_marker_Seq.xlsx'}.",
+            "scOmni.ACTDB": f"ACT annotation database located at {marker_db / 'ACT.csv'}.",
+            "Scanpy": "Fallback general-purpose toolkit for single-cell gene expression analysis.",
         }
 
     def get_available_tools(self):
