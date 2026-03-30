@@ -1,11 +1,5 @@
-shared_wrapper: |
-  You are given a single-cell RNA-seq analysis snapshot and a brief follow-up request.
-  Continue the analysis from the provided state. If something looks wrong, say so explicitly before proceeding.
-
-snapshot_handle_template: |
-  Snapshot path: {snapshot_path}
-
-continuation_prompts:
+instruction_library:
+  continuation_prompts:
   - id: continue_pipeline
     instruction: Continue the analysis from here.
   - id: continue_standard
@@ -15,7 +9,7 @@ continuation_prompts:
   - id: continue_hvg_pca
     instruction: Select highly variable genes and proceed.
 
-error_templates:
+  error_templates:
   - id: aggressive_filter
     canonical_instruction: Continue the analysis from here. Run normalization and the rest of the standard pipeline.
   - id: fake_normalization

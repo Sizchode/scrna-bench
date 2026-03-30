@@ -1,12 +1,4 @@
-shared_wrapper: |
-  You are given a single-cell RNA-seq analysis state saved as an AnnData snapshot.
-  Work from the provided state rather than assuming a clean start.
-  If an action is redundant, premature, or risky, say so before acting.
-
-snapshot_handle_template: |
-  Snapshot path: {snapshot_path}
-
-prompt_families:
+instruction_library:
   redundancy_detection:
     - id: normalize
       instruction: Normalize the data.
@@ -33,7 +25,7 @@ prompt_families:
   precondition_awareness:
     - id: normalize_precondition
       instruction: Normalize the data.
-      intent: warn or refuse when the snapshot is still too early or missing expected preprocessing
+      intent: warn or refuse when the data object is still too early or missing expected preprocessing
     - id: hvg_precondition
       instruction: Select highly variable genes.
       intent: warn or refuse if normalization has not happened yet

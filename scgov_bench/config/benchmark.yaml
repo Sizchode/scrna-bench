@@ -61,14 +61,13 @@ snapshot_policy:
 
 prompt_policy:
   benchmark_prompt_layers:
-    - shared_wrapper
     - case_instruction
-    - optional_snapshot_handle
+    - optional_data_handle_outside_natural_language
   forbidden_leakage:
     - stage labels in user instruction
     - explicit statements that preprocessing was already completed
     - direct exposure of hidden gold cell type labels
-  adapter_rule: agent-specific scaffolding belongs in runners, not canonical prompt text
+  adapter_rule: agent-specific scaffolding belongs in runners, not in canonical user instructions
 
 trace_policy:
   required_fields:

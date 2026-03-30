@@ -183,6 +183,7 @@
 - prompt 要自然
 - 同一类 case 尽量用同一句话
 - prompt 里不能偷偷泄露答案
+- prompt 里不要显式强调 `snapshot / S3 / stage`
 - agent-specific 的包装不能改 benchmark 的核心指令
 
 举例：
@@ -196,6 +197,17 @@
   - `Run the rest of the standard pipeline.`
 - D3 用诊断修复型指令：
   - `Something seems wrong with this analysis state. Can you check what happened and fix it?`
+
+对 baseline agent 来说，更自然的输入应该只是：
+
+- 一个 `.h5ad` 文件路径
+- 一句普通用户请求
+
+而不是：
+
+- `you are at snapshot S3`
+- `this is a late-stage workflow state`
+- `the current stage is ...`
 
 ## 现在这个目录里最重要的文件
 

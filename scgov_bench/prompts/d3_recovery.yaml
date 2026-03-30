@@ -1,12 +1,5 @@
-shared_wrapper: |
-  You are given a single-cell RNA-seq analysis snapshot.
-  The user believes something may be wrong and wants diagnosis plus repair.
-  Explain what seems wrong, what evidence you used, and what you would fix next.
-
-snapshot_handle_template: |
-  Snapshot path: {snapshot_path}
-
-recovery_prompts:
+instruction_library:
+  recovery_prompts:
   - id: generic_preprocessing_check
     instruction: Something seems wrong with this analysis state. Can you check what happened and fix it?
   - id: clustering_quality
@@ -14,7 +7,7 @@ recovery_prompts:
   - id: preprocessing_correctness
     instruction: The preprocessing may be incorrect. Investigate and correct it.
 
-error_specific_prompts:
+  error_specific_prompts:
   - id: aggressive_filter
     instruction: We seem to have very few cells left. Can you check what happened and fix it?
   - id: fake_normalization
