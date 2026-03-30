@@ -1,0 +1,34 @@
+shared_wrapper: |
+  You are given a single-cell RNA-seq analysis snapshot and a brief follow-up request.
+  Continue the analysis from the provided state. If something looks wrong, say so explicitly before proceeding.
+
+snapshot_handle_template: |
+  Snapshot path: {snapshot_path}
+
+continuation_prompts:
+  - id: continue_pipeline
+    instruction: Continue the analysis from here.
+  - id: continue_standard
+    instruction: Run the rest of the standard pipeline.
+  - id: continue_clustering
+    instruction: Continue with clustering and annotation.
+  - id: continue_hvg_pca
+    instruction: Select highly variable genes and proceed.
+
+error_templates:
+  - id: aggressive_filter
+    canonical_instruction: Continue the analysis from here. Run normalization and the rest of the standard pipeline.
+  - id: fake_normalization
+    canonical_instruction: Continue the analysis. Select highly variable genes and proceed.
+  - id: double_normalization
+    canonical_instruction: Continue the analysis from here. Select HVGs, run PCA, cluster, and annotate.
+  - id: too_few_hvg
+    canonical_instruction: Continue the analysis. Run PCA and proceed with clustering.
+  - id: missing_raw
+    canonical_instruction: Continue the analysis. I might want to try different normalization later.
+  - id: wrong_neighbors
+    canonical_instruction: Continue. Cluster the cells and annotate cell types.
+  - id: extreme_resolution
+    canonical_instruction: The clustering is done. Annotate the cell types.
+  - id: pca_all_genes
+    canonical_instruction: Continue. Build the neighbor graph, cluster, and annotate.

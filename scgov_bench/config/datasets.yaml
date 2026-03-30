@@ -1,0 +1,87 @@
+datasets:
+  - key: pancreas
+    local_file: /Users/liuzhenke/Desktop/cellagent-main/scgov_bench/data/raw/Pancreas.h5ad
+    title: Human pancreatic islet cells
+    dataset_id: 00d88707-e33a-4c2a-821a-cdc32a98d050
+    collection_id: 0a77d4c0-d5d0-40f0-aa1a-5e1429bcbd7e
+    collection_name: A transcriptional cross species map of pancreatic islet cells
+    source_url: https://cellxgene.cziscience.com/collections/0a77d4c0-d5d0-40f0-aa1a-5e1429bcbd7e
+    tissue: islet of Langerhans
+    disease_profile:
+      - normal
+    cells: 26474
+    donors: 5
+    cell_types: 4
+    notes:
+      - organ-focused baseline dataset
+      - already contains PCA and UMAP and should be cleaned before S0 generation
+
+  - key: kidney
+    local_file: /Users/liuzhenke/Desktop/cellagent-main/scgov_bench/data/raw/Kidney.h5ad
+    title: Living donor kidney
+    dataset_id: 6b3b10eb-11e7-4589-af2e-591d7401cfaa
+    collection_id: dc3a5256-5c39-4a21-ac0c-4ede3e7b2323
+    collection_name: Healthy living donor kidney
+    source_url: https://cellxgene.cziscience.com/collections/dc3a5256-5c39-4a21-ac0c-4ede3e7b2323
+    tissue: cortex of kidney
+    disease_profile:
+      - normal
+    cells: 27675
+    donors: 19
+    cell_types: 18
+    notes:
+      - strong donor/batch candidate
+      - already contains PCA, tSNE, and UMAP and should be cleaned before S0 generation
+
+  - key: lung
+    local_file: /Users/liuzhenke/Desktop/cellagent-main/scgov_bench/data/raw/Lung.h5ad
+    title: Lung
+    dataset_id: 667f3b2e-c7fd-49a6-a1a4-79999f1d46ad
+    collection_id: 6ff3401b-d72c-4940-a00c-3f0792397082
+    collection_name: SARS-CoV-2 receptor ACE2 and TMPRSS2 are primarily expressed in bronchial transient secretory cells
+    source_url: https://cellxgene.cziscience.com/collections/6ff3401b-d72c-4940-a00c-3f0792397082
+    tissue: lung
+    disease_profile:
+      - normal
+    cells: 39778
+    donors: 12
+    cell_types: 9
+    notes:
+      - moderate multi-donor organ dataset
+      - already contains PCA and UMAP and should be cleaned before S0 generation
+
+  - key: colon
+    local_file: /Users/liuzhenke/Desktop/cellagent-main/scgov_bench/data/raw/Colon.h5ad
+    title: Helmsley_gut_cell_adult
+    dataset_id: 5cfcec6f-a400-4fed-a072-d3f27590132d
+    collection_id: 3b8b7fec-ed65-4483-9579-9f98f5a93a74
+    collection_name: Epithelium-enriched single cell transcriptomes from the ascending colon of pediatric and adult control subjects
+    source_url: https://cellxgene.cziscience.com/collections/3b8b7fec-ed65-4483-9579-9f98f5a93a74
+    tissue: right colon
+    disease_profile:
+      - normal
+    cells: 25641
+    donors: 11
+    cell_types: 13
+    notes:
+      - compact organ dataset with decent donor variation
+      - already contains PCA and UMAP and should be cleaned before S0 generation
+
+  - key: covid
+    local_file: /Users/liuzhenke/Desktop/cellagent-main/scgov_bench/data/raw/covid.h5ad
+    title: PBMCs
+    dataset_id: e83de69d-1904-4b85-a1ed-aedaff9821b6
+    collection_id: 0434a9d4-85fd-4554-b8e3-cf6c582bb2fa
+    collection_name: Acute COVID-19 cohort across a range of WHO categories seen at the Department of Emergency Medicine at MGH
+    source_url: https://cellxgene.cziscience.com/collections/0434a9d4-85fd-4554-b8e3-cf6c582bb2fa
+    tissue: blood
+    disease_profile:
+      - COVID-19
+      - normal
+    cells: 59506
+    donors: 15
+    cell_types: 10
+    notes:
+      - perturbation cohort rather than organ atlas
+      - use adata.raw.X as the pipeline start because adata.X is already processed
+      - remove pre-existing UMAP, cluster columns, and Annotation before S0 generation

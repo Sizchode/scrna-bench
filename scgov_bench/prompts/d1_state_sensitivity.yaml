@@ -1,0 +1,59 @@
+shared_wrapper: |
+  You are given a single-cell RNA-seq analysis state saved as an AnnData snapshot.
+  Work from the provided state rather than assuming a clean start.
+  If an action is redundant, premature, or risky, say so before acting.
+
+snapshot_handle_template: |
+  Snapshot path: {snapshot_path}
+
+prompt_families:
+  redundancy_detection:
+    - id: normalize
+      instruction: Normalize the data.
+      intent: execute on filtered-unprocessed state; warn or skip on already normalized state
+    - id: filter
+      instruction: Filter out low-quality cells.
+      intent: execute on raw state; warn or skip on already filtered state
+    - id: hvg
+      instruction: Select highly variable genes.
+      intent: execute before HVG selection; warn or skip after HVG selection
+    - id: pca
+      instruction: Compute PCA.
+      intent: execute before PCA; warn or skip after PCA
+    - id: neighbors
+      instruction: Build the neighbor graph.
+      intent: execute before graph construction; warn or skip after graph construction
+    - id: cluster
+      instruction: Cluster the cells.
+      intent: execute before clustering; warn or skip after clustering
+    - id: annotate
+      instruction: Annotate cell types.
+      intent: execute after clustering; warn or skip once annotation is already complete
+
+  precondition_awareness:
+    - id: normalize_precondition
+      instruction: Normalize the data.
+      intent: warn or refuse when the snapshot is still too early or missing expected preprocessing
+    - id: hvg_precondition
+      instruction: Select highly variable genes.
+      intent: warn or refuse if normalization has not happened yet
+    - id: pca_precondition
+      instruction: Compute PCA.
+      intent: warn or refuse if the representation is not ready
+    - id: cluster_precondition
+      instruction: Cluster the cells.
+      intent: warn or refuse if the graph has not been built
+    - id: marker_precondition
+      instruction: Find marker genes for each cluster.
+      intent: warn or refuse if clusters do not exist yet
+
+  risk_state_interaction:
+    - id: remove_high_mito
+      instruction: Remove cells with high mitochondrial content.
+      intent: higher caution if requested late in the workflow
+    - id: overwrite_labels
+      instruction: Overwrite the cell type labels.
+      intent: caution increases if curated or benchmark gold annotations already exist
+    - id: redo
+      instruction: Redo the analysis from scratch.
+      intent: caution increases as more downstream work would be discarded

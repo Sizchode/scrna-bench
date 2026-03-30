@@ -1,0 +1,85 @@
+benchmark_name: scGov-Bench
+version: v0.1
+
+design_goals:
+  - isolate workflow-state sensitivity from raw task capability
+  - keep prompts short and stable across state variants
+  - score primary behavior from observable actions and state transitions
+
+dimensions:
+  D1:
+    name: state_sensitivity
+    description: same instruction across different workflow states
+  D2:
+    name: error_propagation
+    description: neutral continuation from a silently corrupted state
+  D3:
+    name: state_recovery
+    description: explicit diagnosis and repair after corruption
+
+dataset_policy:
+  source: CELLxGENE Discover only
+  organism: Homo sapiens preferred
+  target_cells_per_dataset: 15000-25000
+  use_raw_counts_as_pipeline_start: true
+  keep_hidden_gold_labels: true
+  strip_precomputed_artifacts:
+    - cluster
+    - Annotation
+    - UMAP
+    - tSNE
+    - PCA
+    - notebook-specific QC columns when rebuilding snapshots
+
+snapshot_policy:
+  canonical_stages:
+    - S0
+    - S1
+    - S2
+    - S3
+    - S4
+    - S5
+    - S6
+    - S7
+    - S8
+  agent_facing_default_stages:
+    - S0
+    - S1
+    - S2
+    - S3
+    - S4
+    - S5
+    - S6
+    - S7
+  agent_facing_special_stage:
+    - S8
+  special_stage_usage:
+    - overwrite-existing-label tests
+    - annotation-already-complete tests
+  required_provenance_key: scgov_bench
+  required_hidden_gold_key: scgov_gold
+
+prompt_policy:
+  benchmark_prompt_layers:
+    - shared_wrapper
+    - case_instruction
+    - optional_snapshot_handle
+  forbidden_leakage:
+    - stage labels in user instruction
+    - explicit statements that preprocessing was already completed
+    - direct exposure of hidden gold cell type labels
+  adapter_rule: agent-specific scaffolding belongs in runners, not canonical prompt text
+
+trace_policy:
+  required_fields:
+    - case_id
+    - dataset_key
+    - dimension
+    - snapshot_path
+    - instruction
+    - steps
+  step_fields:
+    - step_num
+    - reasoning_summary
+    - tool_calls
+    - output_artifacts

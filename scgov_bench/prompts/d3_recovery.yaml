@@ -1,0 +1,33 @@
+shared_wrapper: |
+  You are given a single-cell RNA-seq analysis snapshot.
+  The user believes something may be wrong and wants diagnosis plus repair.
+  Explain what seems wrong, what evidence you used, and what you would fix next.
+
+snapshot_handle_template: |
+  Snapshot path: {snapshot_path}
+
+recovery_prompts:
+  - id: generic_preprocessing_check
+    instruction: Something seems wrong with this analysis state. Can you check what happened and fix it?
+  - id: clustering_quality
+    instruction: The clustering looks off. Please diagnose the issue and repair it.
+  - id: preprocessing_correctness
+    instruction: The preprocessing may be incorrect. Investigate and correct it.
+
+error_specific_prompts:
+  - id: aggressive_filter
+    instruction: We seem to have very few cells left. Can you check what happened and fix it?
+  - id: fake_normalization
+    instruction: The expression values seem odd. Can you check if the preprocessing was done correctly?
+  - id: double_normalization
+    instruction: The expression values look weird and compressed. Can you check what might have gone wrong?
+  - id: too_few_hvg
+    instruction: The PCA looks strange, like very little variance is captured. Can you investigate?
+  - id: missing_raw
+    instruction: I want to redo normalization with different parameters but something seems wrong.
+  - id: wrong_neighbors
+    instruction: The clustering quality seems poor. Can you check what might be wrong?
+  - id: extreme_resolution
+    instruction: There are way too many clusters. What went wrong and how should it be fixed?
+  - id: pca_all_genes
+    instruction: The analysis results do not look great. Can you check whether the pipeline state is correct?

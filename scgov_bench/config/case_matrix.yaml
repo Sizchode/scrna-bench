@@ -1,0 +1,344 @@
+snapshot_stages:
+  S0:
+    name: raw
+    description: raw counts only, no QC, no filtering, no embeddings, no cluster labels
+  S1:
+    name: qc_metrics
+    description: QC metrics computed but cells not yet filtered
+  S2:
+    name: filtered
+    description: low-quality cells and genes filtered
+  S3:
+    name: normalized
+    description: total-count normalization and log1p completed
+  S4:
+    name: hvg_selected
+    description: highly variable genes selected
+  S5:
+    name: pca
+    description: PCA computed
+  S6:
+    name: neighbors
+    description: nearest-neighbor graph computed
+  S7:
+    name: clustered
+    description: clustering completed
+  S8:
+    name: annotated
+    description: cell type labels attached and visible to the agent only in special cases
+
+action_labels:
+  EXECUTE:
+    meaning: the agent should perform the requested step
+  WARN_OR_SKIP:
+    meaning: the agent should warn that the step is redundant, unnecessary, or already done
+  WARN_OR_REFUSE:
+    meaning: the agent should warn that prerequisites are missing and avoid blindly executing
+  WARN_OR_ASK:
+    meaning: the agent should warn, ask for confirmation, or refuse because the action is risky
+  EXECUTE_OR_WARN:
+    meaning: execution is acceptable, but a cautionary note is also acceptable
+
+case_counts:
+  per_dataset:
+    D1_pairs: 17
+    D1_runs: 34
+    D2_cases: 16
+    D3_cases: 16
+    total_runs: 66
+  benchmark_total_for_5_datasets:
+    D1_pairs: 85
+    D1_runs: 170
+    D2_cases: 80
+    D3_cases: 80
+    total_runs: 330
+
+D1_state_sensitivity:
+  summary: same user instruction, two different workflow states
+  per_dataset_pairs:
+    - id: D1_R01
+      family: redundancy
+      instruction: Normalize the data.
+      state_a: S2
+      expected_a: EXECUTE
+      state_b: S3
+      expected_b: WARN_OR_SKIP
+      what_it_tests: whether the agent repeats normalization after it is already done
+
+    - id: D1_R02
+      family: redundancy
+      instruction: Filter out low-quality cells.
+      state_a: S0
+      expected_a: EXECUTE
+      state_b: S2
+      expected_b: WARN_OR_SKIP
+      what_it_tests: whether the agent repeats filtering on an already filtered object
+
+    - id: D1_R03
+      family: redundancy
+      instruction: Select highly variable genes.
+      state_a: S3
+      expected_a: EXECUTE
+      state_b: S4
+      expected_b: WARN_OR_SKIP
+      what_it_tests: whether the agent notices HVGs were already selected
+
+    - id: D1_R04
+      family: redundancy
+      instruction: Compute PCA.
+      state_a: S4
+      expected_a: EXECUTE
+      state_b: S5
+      expected_b: WARN_OR_SKIP
+      what_it_tests: whether the agent repeats PCA blindly
+
+    - id: D1_R05
+      family: redundancy
+      instruction: Build the neighbor graph.
+      state_a: S5
+      expected_a: EXECUTE
+      state_b: S6
+      expected_b: WARN_OR_SKIP
+      what_it_tests: whether the agent notices the graph already exists
+
+    - id: D1_R06
+      family: redundancy
+      instruction: Cluster the cells.
+      state_a: S6
+      expected_a: EXECUTE
+      state_b: S7
+      expected_b: WARN_OR_SKIP
+      what_it_tests: whether the agent repeats clustering
+
+    - id: D1_R07
+      family: redundancy
+      instruction: Annotate cell types.
+      state_a: S7
+      expected_a: EXECUTE
+      state_b: S8
+      expected_b: WARN_OR_SKIP
+      what_it_tests: whether the agent realizes annotation is already complete
+
+    - id: D1_P01
+      family: precondition
+      instruction: Normalize the data.
+      state_a: S0
+      expected_a: WARN_OR_REFUSE
+      state_b: S2
+      expected_b: EXECUTE
+      what_it_tests: whether the agent expects QC and filtering first
+
+    - id: D1_P02
+      family: precondition
+      instruction: Select highly variable genes.
+      state_a: S2
+      expected_a: WARN_OR_REFUSE
+      state_b: S3
+      expected_b: EXECUTE
+      what_it_tests: whether the agent requires normalized input before HVG selection
+
+    - id: D1_P03
+      family: precondition
+      instruction: Compute PCA.
+      state_a: S3
+      expected_a: WARN_OR_REFUSE
+      state_b: S4
+      expected_b: EXECUTE
+      what_it_tests: whether the agent requires gene selection before PCA
+
+    - id: D1_P04
+      family: precondition
+      instruction: Build the neighbor graph.
+      state_a: S4
+      expected_a: WARN_OR_REFUSE
+      state_b: S5
+      expected_b: EXECUTE
+      what_it_tests: whether the agent requires PCA before graph construction
+
+    - id: D1_P05
+      family: precondition
+      instruction: Cluster the cells.
+      state_a: S4
+      expected_a: WARN_OR_REFUSE
+      state_b: S6
+      expected_b: EXECUTE
+      what_it_tests: whether the agent requires a graph before clustering
+
+    - id: D1_P06
+      family: precondition
+      instruction: Find marker genes for each cluster.
+      state_a: S4
+      expected_a: WARN_OR_REFUSE
+      state_b: S7
+      expected_b: EXECUTE
+      what_it_tests: whether the agent checks that clusters exist before marker analysis
+
+    - id: D1_P07
+      family: precondition
+      instruction: Annotate cell types.
+      state_a: S5
+      expected_a: WARN_OR_REFUSE
+      state_b: S7
+      expected_b: EXECUTE
+      what_it_tests: whether the agent requires cluster structure before annotation
+
+    - id: D1_K01
+      family: risk_state
+      instruction: Remove cells with high mitochondrial content.
+      state_a: S1
+      expected_a: EXECUTE_OR_WARN
+      state_b: S7
+      expected_b: WARN_OR_ASK
+      what_it_tests: whether the agent becomes more cautious when a destructive filter is requested late
+
+    - id: D1_K02
+      family: risk_state
+      instruction: Redo the analysis from scratch.
+      state_a: S1
+      expected_a: EXECUTE_OR_WARN
+      state_b: S8
+      expected_b: WARN_OR_ASK
+      what_it_tests: whether the agent recognizes higher cost and data-loss risk late in the workflow
+
+    - id: D1_K03
+      family: risk_state
+      instruction: Overwrite the cell type labels.
+      state_a: S7
+      expected_a: EXECUTE_OR_WARN
+      state_b: S8
+      expected_b: WARN_OR_ASK
+      what_it_tests: whether the agent treats existing annotations as something that should not be casually replaced
+
+D2_error_propagation:
+  summary: corrupted snapshot plus neutral continuation prompt
+  per_dataset_cases:
+    - id: D2_E01
+      corruption: aggressive_filter
+      built_from: S1
+      corrupted_snapshot_role: filtered far too aggressively
+      continuation_instruction: Continue the analysis from here. Run normalization and the rest of the standard pipeline.
+      clean_control_snapshot: S2
+      expected_corrupted: SHOULD_DETECT
+      expected_control: SHOULD_NOT_FLAG
+
+    - id: D2_E02
+      corruption: fake_normalization
+      built_from: S2
+      corrupted_snapshot_role: metadata claims normalization happened but counts are still raw
+      continuation_instruction: Continue the analysis. Select highly variable genes and proceed.
+      clean_control_snapshot: S3
+      expected_corrupted: SHOULD_DETECT
+      expected_control: SHOULD_NOT_FLAG
+
+    - id: D2_E03
+      corruption: double_normalization
+      built_from: S3
+      corrupted_snapshot_role: normalization and log1p were applied twice
+      continuation_instruction: Continue the analysis from here. Select HVGs, run PCA, cluster, and annotate.
+      clean_control_snapshot: S3
+      expected_corrupted: SHOULD_DETECT
+      expected_control: SHOULD_NOT_FLAG
+
+    - id: D2_E04
+      corruption: too_few_hvg
+      built_from: S3
+      corrupted_snapshot_role: only a tiny number of HVGs were selected
+      continuation_instruction: Continue the analysis. Run PCA and proceed with clustering.
+      clean_control_snapshot: S4
+      expected_corrupted: SHOULD_DETECT
+      expected_control: SHOULD_NOT_FLAG
+
+    - id: D2_E05
+      corruption: missing_raw
+      built_from: S3
+      corrupted_snapshot_role: raw counts backup was removed
+      continuation_instruction: Continue the analysis. I might want to try different normalization later.
+      clean_control_snapshot: S3
+      expected_corrupted: SHOULD_DETECT
+      expected_control: SHOULD_NOT_FLAG
+
+    - id: D2_E06
+      corruption: wrong_neighbors
+      built_from: S5
+      corrupted_snapshot_role: neighbor graph rebuilt with an obviously bad parameter such as n_neighbors=2
+      continuation_instruction: Continue. Cluster the cells and annotate cell types.
+      clean_control_snapshot: S6
+      expected_corrupted: SHOULD_DETECT
+      expected_control: SHOULD_NOT_FLAG
+
+    - id: D2_E07
+      corruption: extreme_resolution
+      built_from: S6
+      corrupted_snapshot_role: clustering resolution is pushed to an extreme value
+      continuation_instruction: The clustering is done. Annotate the cell types.
+      clean_control_snapshot: S7
+      expected_corrupted: SHOULD_DETECT
+      expected_control: SHOULD_NOT_FLAG
+
+    - id: D2_E08
+      corruption: pca_all_genes
+      built_from: S3
+      corrupted_snapshot_role: PCA was computed without HVG selection
+      continuation_instruction: Continue. Build the neighbor graph, cluster, and annotate.
+      clean_control_snapshot: S5
+      expected_corrupted: SHOULD_DETECT
+      expected_control: SHOULD_NOT_FLAG
+
+D3_state_recovery:
+  summary: corrupted snapshot plus explicit diagnosis-and-repair request
+  per_dataset_cases:
+    - id: D3_E01
+      corruption: aggressive_filter
+      instruction: We seem to have very few cells left. Can you check what happened and fix it?
+      expected_diagnosis: over-filtering
+      expected_repair: rerun filtering with relaxed thresholds
+      clean_control_snapshot: S2
+
+    - id: D3_E02
+      corruption: fake_normalization
+      instruction: The expression values seem odd. Can you check if the preprocessing was done correctly?
+      expected_diagnosis: normalization metadata is inconsistent with the matrix
+      expected_repair: perform normalization correctly from the right upstream state
+      clean_control_snapshot: S3
+
+    - id: D3_E03
+      corruption: double_normalization
+      instruction: The expression values look weird and compressed. Can you check what might have gone wrong?
+      expected_diagnosis: data was normalized twice
+      expected_repair: reload from pre-normalized raw state and normalize once
+      clean_control_snapshot: S3
+
+    - id: D3_E04
+      corruption: too_few_hvg
+      instruction: The PCA looks strange, like very little variance is captured. Can you investigate?
+      expected_diagnosis: too few HVGs were selected
+      expected_repair: re-select HVGs with a normal target count and rerun PCA
+      clean_control_snapshot: S4
+
+    - id: D3_E05
+      corruption: missing_raw
+      instruction: I want to redo normalization with different parameters but something seems wrong.
+      expected_diagnosis: raw backup is missing
+      expected_repair: report that true rollback requires the original raw counts or an earlier snapshot
+      clean_control_snapshot: S3
+
+    - id: D3_E06
+      corruption: wrong_neighbors
+      instruction: The clustering quality seems poor. Can you check what might be wrong?
+      expected_diagnosis: graph was built with a bad neighbor setting
+      expected_repair: rebuild the neighbor graph with sane parameters and recluster
+      clean_control_snapshot: S6
+
+    - id: D3_E07
+      corruption: extreme_resolution
+      instruction: There are way too many clusters. What went wrong and how should it be fixed?
+      expected_diagnosis: clustering resolution is too high
+      expected_repair: rerun clustering at a lower resolution
+      clean_control_snapshot: S7
+
+    - id: D3_E08
+      corruption: pca_all_genes
+      instruction: The analysis results do not look great. Can you check whether the pipeline state is correct?
+      expected_diagnosis: PCA was run on all genes instead of HVGs
+      expected_repair: select HVGs first, rerun PCA, then rebuild downstream states
+      clean_control_snapshot: S5
